@@ -16,5 +16,5 @@ Basically this project consists of cyclejs (including the DOM driver), webpack, 
 
 ## I've got it running, what now?
 
-* You can find the basic HTML for the project in './index.html' in the root folder of this project
-* The main file for this project is in ./src/main.js
+* You can find the basic HTML for the project in `./index.html` in the root folder of this project
+* The main file for this project is in `./src/main.js`
