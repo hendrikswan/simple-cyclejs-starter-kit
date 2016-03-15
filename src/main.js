@@ -6,7 +6,8 @@ const {
     h2,
     makeDOMDriver,
 } = CycleDOM;
-import labeledSlder from './labeledSlider';
+import labeledSlider from './labeledSlider';
+import auctionItem from './auctionItem';
 
 function main(sources) {
     const weightProps$ = Rx.Observable.of({
@@ -17,7 +18,7 @@ function main(sources) {
         init: 70,
     });
 
-    const weightSinks = labeledSlder({
+    const weightSinks = labeledSlider({
         DOM: sources.DOM, props: weightProps$,
     });
     const weightVTree$ = weightSinks.DOM;
@@ -31,7 +32,7 @@ function main(sources) {
         init: 170,
     });
 
-    const heightSinks = labeledSlder({
+    const heightSinks = labeledSlider({
         DOM: sources.DOM, props: heightProps$,
     });
 
@@ -46,6 +47,17 @@ function main(sources) {
         }
     );
 
+    const auctionItemProps$ = Rx.Observable.of({
+        amount: 500,
+        title: 'An old shoe',
+    });
+    const auctionItemSinks = auctionItem({
+        DOM: sources.DOM,
+        props: auctionItemProps$,
+    });
+    const auctionVTree$ = auctionItemSinks.DOM;
+
+
     const vtree$ = Rx.Observable.combineLatest(
         bmi$,
         weightVTree$,
@@ -55,6 +67,7 @@ function main(sources) {
                 weightVTree,
                 heightVTree,
                 h2(`BMI is ${bmi}`),
+                auctionVTree$,
             ])
     );
 
