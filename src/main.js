@@ -38,7 +38,9 @@ function view(DOMSource) {
                         div({ className: 'card' }, [
                             div({ className: 'card-content' }, [
                                 messageList$,
-                                messageBox$,
+                                div({ style: { 'padding-top': '20px' } }, [
+                                    messageBox$,
+                                ]),
                             ]),
                         ]),
                     ]),
