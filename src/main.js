@@ -10,19 +10,20 @@ import { makeHTTPDriver } from '@cycle/http';
 
 // import auctionItem from './auctionItem';
 import { navBar } from './navBar';
-import { textEntry } from './messageBox';
+import { messageBox, textEntryIntentWithSendButtonClicked } from './messageBox';
 import { contactList } from './contactList';
 import { messageList } from './messageList';
 
 
-function view(DOMSource, messages) {
-    const navBarView$ = navBar(DOMSource);
+function view(sources, messages) {
+    const navBarView$ = navBar(sources);
 
     // const chatPaneView$ = chatPane(DOMSource);
     // const presencePaneView$ = presencePane(DOMSource);
-    const messageBox$ = textEntry(DOMSource);
-    const contactList$ = contactList(DOMSource);
-    const messageList$ = messageList(DOMSource, messages);
+    const messageBox$ = messageBox(sources);
+    const contactList$ = contactList(sources);
+    const messageList$ = messageList(sources, messages);
+
 
     const vtree$ = Observable.of(
         div([
@@ -57,9 +58,7 @@ function view(DOMSource, messages) {
 }
 
 function main(sources) {
-    // const vtree$ = view(sources.DOM);
-
-    const request$ = Observable
+    const messagePollRequest$ = Observable
         .interval(1000)
         .map(() => {
             return {
@@ -68,16 +67,40 @@ function main(sources) {
             };
         });
 
+
+    const { textStream$, buttonClick$ } = textEntryIntentWithSendButtonClicked(sources.DOM);
+    const text$ = buttonClick$.withLatestFrom(textStream$, (buttonClick, textStream) => {
+        return textStream;
+    });
+
+    const validMsg$ = text$
+        .map(input => input.value)
+        .filter(msg => msg.length > 0);
+
+
+    const messagePostRequest$ = validMsg$
+        .map(msg => ({
+            url: 'http://localhost:3000/messages',
+            category: 'messagePost',
+            method: 'POST',
+            send: {
+                text: msg,
+            },
+            eager: true,
+        }));
+
+    const requestStream$ = Observable.merge(messagePollRequest$, messagePostRequest$);
+
     const vtree$ = sources.HTTP
         .filter(res$ => res$.request.category === 'messagePoll')
         .flatMap(x => x)
         .map(res => res.body)
         .startWith([])
-        .map(messages => view(sources.DOM, messages));
+        .map(messages => view(sources, messages));
 
     return {
         DOM: vtree$,
-        HTTP: request$,
+        HTTP: requestStream$,
     };
 }
 
