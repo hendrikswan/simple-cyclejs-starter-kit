@@ -22,9 +22,6 @@ function view({ sources, messageBox, messageList }) {
     // const presencePaneView$ = presencePane(DOMSource);
 
     const contactList$ = contactList(sources);
-
-
-
     const vtree$ = Observable.of(
         div([
             navBarView$,
@@ -52,8 +49,6 @@ function view({ sources, messageBox, messageList }) {
         ])
     );
 
-    // return vtree$;
-
     return vtree$;
 }
 
@@ -72,12 +67,7 @@ function main(sources) {
     const messageList = MessageList(sources);
     const text$ = messageBox.value$;
 
-    const validMsg$ = text$
-        .map(input => input.value)
-        .filter(msg => msg.length > 0);
-
-
-    const messagePostRequest$ = validMsg$
+    const messagePostRequest$ = text$
         .map(msg => ({
             url: 'http://localhost:3000/messages',
             category: 'messagePost',
@@ -89,13 +79,6 @@ function main(sources) {
         }));
 
     const requestStream$ = Observable.merge(messagePollRequest$, messagePostRequest$);
-
-    // const vtree$ = sources.HTTP
-    //     .filter(res$ => res$.request.category === 'messagePoll')
-    //     .flatMap(x => x)
-    //     .map(res => res.body)
-    //     .startWith([])
-    //     .map(messages => view({ sources, messages, messageBox, messageList }));
     const vtree$ = view({ sources, messageBox, messageList });
 
     return {

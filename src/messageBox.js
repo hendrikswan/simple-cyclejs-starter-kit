@@ -11,7 +11,9 @@ function intent(sources) {
 
     const text$ = buttonClick$.withLatestFrom(textStream$, (buttonClick, textStream) => {
         return textStream;
-    });
+    })
+    .map(textInput => textInput.value)
+    .filter(msg => msg.length > 0);
 
     return text$;
 }
