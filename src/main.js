@@ -15,7 +15,7 @@ import ContactList from './ContactList';
 import MessageList from './MessageList';
 
 
-function view({ sources, messageBox, messageList, navBar, contactList }) {
+function view({ messageBox, messageList, navBar, contactList }) {
     const vtree$ = Observable.of(
         div([
             navBar.DOM,
