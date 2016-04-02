@@ -10,9 +10,9 @@ import { makeHTTPDriver } from '@cycle/http';
 
 // import auctionItem from './auctionItem';
 import { navBar } from './navBar';
-import MessageBox from './messageBox';
+import MessageBox from './MessageBox';
 import { contactList } from './contactList';
-import MessageList from './messageList';
+import MessageList from './MessageList';
 
 
 function view({ sources, messageBox, messageList }) {
