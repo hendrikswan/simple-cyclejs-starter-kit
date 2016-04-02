@@ -1,8 +1,8 @@
 import { Observable } from 'rx';
 import { div, nav, a } from '@cycle/dom';
 
-export function navBar() {
-    const vdom$ = Observable.of(
+export default function NavBar() {
+    const vtree$ = Observable.of(
         div({ className: 'navbar-fixed' }, [
             nav([
                 div({ className: 'nav-wrapper container' }, [
@@ -12,5 +12,7 @@ export function navBar() {
         ])
     );
 
-    return vdom$;
+    return {
+        DOM: vtree$,
+    };
 }

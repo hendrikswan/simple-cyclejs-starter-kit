@@ -9,28 +9,22 @@ const {
 import { makeHTTPDriver } from '@cycle/http';
 
 // import auctionItem from './auctionItem';
-import { navBar } from './navBar';
+import NavBar from './NavBar';
 import MessageBox from './MessageBox';
-import { contactList } from './contactList';
+import ContactList from './ContactList';
 import MessageList from './MessageList';
 
 
-function view({ sources, messageBox, messageList }) {
-    const navBarView$ = navBar(sources);
-
-    // const chatPaneView$ = chatPane(DOMSource);
-    // const presencePaneView$ = presencePane(DOMSource);
-
-    const contactList$ = contactList(sources);
+function view({ sources, messageBox, messageList, navBar, contactList }) {
     const vtree$ = Observable.of(
         div([
-            navBarView$,
+            navBar.DOM,
             div({ className: 'container', style: { 'padding-top': '40px' } }, [
                 div({ className: 'row' }, [
                     div({ className: 'col s3' }, [
                         div({ className: 'card' }, [
                             div({ className: 'card-content' }, [
-                                contactList$,
+                                contactList.DOM,
                             ]),
                         ]),
                     ]),
@@ -68,6 +62,9 @@ function main(sources) {
         .map(res => res.body)
         .startWith([]);
 
+
+    const navBar = NavBar(sources);
+    const contactList = ContactList(sources);
     const messageList = MessageList(Object.assign({}, sources, {
         prop$: {
             messages$,
@@ -76,7 +73,6 @@ function main(sources) {
 
     const messageBox = MessageBox(sources);
     const text$ = messageBox.value$;
-
     const messagePostRequest$ = text$
         .map(msg => ({
             url: 'http://localhost:3000/messages',
@@ -88,8 +84,9 @@ function main(sources) {
             eager: true,
         }));
 
+
     const requestStream$ = Observable.merge(messagePollRequest$, messagePostRequest$);
-    const vtree$ = view({ sources, messageBox, messageList });
+    const vtree$ = view({ sources, messageBox, messageList, navBar, contactList });
 
     return {
         DOM: vtree$,

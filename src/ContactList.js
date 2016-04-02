@@ -1,10 +1,12 @@
 import { Observable } from 'rx';
 import { div } from '@cycle/dom';
 
-export function contactList() {
-    const vdom$ = Observable.of(
+export default function ContactList() {
+    const vtree$ = Observable.of(
         div({ className: 'contact-list' }, 'the contact list')
     );
 
-    return vdom$;
+    return {
+        DOM: vtree$,
+    };
 }
