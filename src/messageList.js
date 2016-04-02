@@ -1,9 +1,12 @@
-import { Observable } from 'rx';
 import { div } from '@cycle/dom';
 
-export function messageList(sources, messages) {
-    const vdom$ = Observable.of(
-        div({ className: 'message-list' },
+export default function MessageList(sources) {
+    const vtree$ = sources.HTTP
+        .filter(res$ => res$.request.category === 'messagePoll')
+        .flatMap(x => x)
+        .map(res => res.body)
+        .startWith([])
+        .map(messages => div({ className: 'message-list' },
             messages.map(message =>
                 div({
                     className: 'message',
@@ -12,8 +15,9 @@ export function messageList(sources, messages) {
                     },
                 }, message.text)
             )
-        )
-    );
+        ));
 
-    return vdom$;
+    return {
+        DOM: vtree$,
+    };
 }

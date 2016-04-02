@@ -12,17 +12,17 @@ import { makeHTTPDriver } from '@cycle/http';
 import { navBar } from './navBar';
 import MessageBox from './messageBox';
 import { contactList } from './contactList';
-import { messageList } from './messageList';
+import MessageList from './messageList';
 
 
-function view({ sources, messages, messageBox }) {
+function view({ sources, messageBox, messageList }) {
     const navBarView$ = navBar(sources);
 
     // const chatPaneView$ = chatPane(DOMSource);
     // const presencePaneView$ = presencePane(DOMSource);
 
     const contactList$ = contactList(sources);
-    const messageList$ = messageList(sources, messages);
+
 
 
     const vtree$ = Observable.of(
@@ -40,7 +40,7 @@ function view({ sources, messages, messageBox }) {
                     div({ className: 'col s9' }, [
                         div({ className: 'card' }, [
                             div({ className: 'card-content' }, [
-                                messageList$,
+                                messageList.DOM,
                                 div({ style: { 'padding-top': '20px' } }, [
                                     messageBox.DOM,
                                 ]),
@@ -69,6 +69,7 @@ function main(sources) {
 
 
     const messageBox = MessageBox(sources);
+    const messageList = MessageList(sources);
     const text$ = messageBox.value$;
 
     const validMsg$ = text$
@@ -89,12 +90,13 @@ function main(sources) {
 
     const requestStream$ = Observable.merge(messagePollRequest$, messagePostRequest$);
 
-    const vtree$ = sources.HTTP
-        .filter(res$ => res$.request.category === 'messagePoll')
-        .flatMap(x => x)
-        .map(res => res.body)
-        .startWith([])
-        .map(messages => view({ sources, messages, messageBox }));
+    // const vtree$ = sources.HTTP
+    //     .filter(res$ => res$.request.category === 'messagePoll')
+    //     .flatMap(x => x)
+    //     .map(res => res.body)
+    //     .startWith([])
+    //     .map(messages => view({ sources, messages, messageBox, messageList }));
+    const vtree$ = view({ sources, messageBox, messageList });
 
     return {
         DOM: vtree$,
