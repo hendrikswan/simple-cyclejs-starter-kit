@@ -5,10 +5,6 @@ function intent(sources) {
     const { DOM } = sources;
     const textStream$ = DOM.select('#input-msg').events('keyup').map(e => e.target);
     const buttonClick$ = DOM.select('#send-btn').events('click').map(e => e.target);
-
-    // return { textStream$, buttonClick$ };
-
-
     const text$ = buttonClick$.withLatestFrom(textStream$, (buttonClick, textStream) => {
         return textStream;
     })
@@ -17,13 +13,6 @@ function intent(sources) {
 
     return text$.share();
 }
-
-// export function textEntryIntentWithEnterKeyPressed(DOMSource) {
-//     const textStream$ = DOMSource.select('#input-msg').events('keyup').filter(textStream => textStream.keyCode !== 13).map(e => e.target);
-//     const enterKeyPressed$ = DOMSource.select('#input-msg').events('keyup').filter(textStream => textStream.keyCode === 13).map(e => e.target);
-//
-//     return { textStream$, enterKeyPressed$ };
-// }
 
 export default function MessageBox(sources) {
     const value$ = intent(sources);
