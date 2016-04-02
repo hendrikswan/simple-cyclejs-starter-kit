@@ -1,11 +1,8 @@
 import { div } from '@cycle/dom';
 
 export default function MessageList(sources) {
-    const vtree$ = sources.HTTP
-        .filter(res$ => res$.request.category === 'messagePoll')
-        .flatMap(x => x)
-        .map(res => res.body)
-        .startWith([])
+    const vtree$ =
+        sources.prop$.messages$
         .map(messages => div({ className: 'message-list' },
             messages.map(message =>
                 div({

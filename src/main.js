@@ -62,9 +62,19 @@ function main(sources) {
             };
         });
 
+    const messages$ = sources.HTTP
+        .filter(res$ => res$.request.category === 'messagePoll')
+        .flatMap(x => x)
+        .map(res => res.body)
+        .startWith([]);
+
+    const messageList = MessageList(Object.assign({}, sources, {
+        prop$: {
+            messages$,
+        },
+    }));
 
     const messageBox = MessageBox(sources);
-    const messageList = MessageList(sources);
     const text$ = messageBox.value$;
 
     const messagePostRequest$ = text$
