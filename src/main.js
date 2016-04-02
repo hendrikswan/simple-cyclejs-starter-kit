@@ -10,17 +10,17 @@ import { makeHTTPDriver } from '@cycle/http';
 
 // import auctionItem from './auctionItem';
 import { navBar } from './navBar';
-import { messageBox, textEntryIntentWithSendButtonClicked } from './messageBox';
+import MessageBox from './messageBox';
 import { contactList } from './contactList';
 import { messageList } from './messageList';
 
 
-function view(sources, messages) {
+function view({ sources, messages, messageBox }) {
     const navBarView$ = navBar(sources);
 
     // const chatPaneView$ = chatPane(DOMSource);
     // const presencePaneView$ = presencePane(DOMSource);
-    const messageBox$ = messageBox(sources);
+
     const contactList$ = contactList(sources);
     const messageList$ = messageList(sources, messages);
 
@@ -42,7 +42,7 @@ function view(sources, messages) {
                             div({ className: 'card-content' }, [
                                 messageList$,
                                 div({ style: { 'padding-top': '20px' } }, [
-                                    messageBox$,
+                                    messageBox.DOM,
                                 ]),
                             ]),
                         ]),
@@ -68,10 +68,8 @@ function main(sources) {
         });
 
 
-    const { textStream$, buttonClick$ } = textEntryIntentWithSendButtonClicked(sources.DOM);
-    const text$ = buttonClick$.withLatestFrom(textStream$, (buttonClick, textStream) => {
-        return textStream;
-    });
+    const messageBox = MessageBox(sources);
+    const text$ = messageBox.value$;
 
     const validMsg$ = text$
         .map(input => input.value)
@@ -96,7 +94,7 @@ function main(sources) {
         .flatMap(x => x)
         .map(res => res.body)
         .startWith([])
-        .map(messages => view(sources, messages));
+        .map(messages => view({ sources, messages, messageBox }));
 
     return {
         DOM: vtree$,

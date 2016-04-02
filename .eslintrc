@@ -14,5 +14,6 @@
          }],
          'object-shorthand': 0,
          "arrow-body-style": 0,
+         "new-cap": 0,
     }
 }
