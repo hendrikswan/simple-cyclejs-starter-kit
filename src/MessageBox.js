@@ -26,46 +26,15 @@ function intent(sources) {
 // }
 
 export default function MessageBox(sources) {
-    // const vtree$ = sources.HTTP
-    //     .filter(res$ => res$.request.category === 'messagePost')
-    //     .startWith(null)
-    //     .map((val) => {
-    //         let inputVtree = input({ id: 'input-msg', className: 'validate', autofocus: true });
-    //         if (val) {
-    //             inputVtree = input({ id: 'input-msg', className: 'validate', autofocus: true, value: null });
-    //         }
-    //
-    //
-    //         return Observable.of(
-    //             div({ className: 'row' }, [
-    //                 div({ className: 'input-field col s10' }, [
-    //                     inputVtree,
-    //                     label({ className: 'active' }, 'Type your chat, enter or hit button to send'),
-    //                 ]),
-    //                 div({ className: 'input-field col s2' }, [
-    //                     a({ id: 'send-btn', className: 'btn-floating btn-large waves-effect waves-light red' }, [
-    //                         i({ className: 'material-icons' }, 'send'),
-    //                     ]),
-    //                 ]),
-    //             ])
-    //         );
-    //     });
-
     const value$ = intent(sources);
 
     const vtree$ = value$
         .startWith(null)
         .map(() => {
-            // let inputVtree = input({ id: 'input-msg', className: 'validate', autofocus: true });
-            // if (val) {
-            const inputVtree = input({ id: 'input-msg', className: 'validate', autofocus: true, value: '' });
-            // }
-
-
             return Observable.of(
                 div({ className: 'row' }, [
                     div({ className: 'input-field col s10' }, [
-                        inputVtree,
+                        input({ id: 'input-msg', className: 'validate', autofocus: true, value: '' }),
                         label({ className: 'active' }, 'Type your chat, enter or hit button to send'),
                     ]),
                     div({ className: 'input-field col s2' }, [
