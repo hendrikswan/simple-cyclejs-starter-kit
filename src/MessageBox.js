@@ -3,13 +3,16 @@ import { div, input, label, a, i } from '@cycle/dom';
 
 function intent(sources) {
     const { DOM } = sources;
-    const textStream$ = DOM.select('#input-msg').events('keyup').map(e => e.target);
+    const textStream$ = DOM
+        .select('#input-msg')
+        .events('keyup')
+        .map(e => e.target.value)
+        .filter(msg => msg.length > 0);
+
     const buttonClick$ = DOM.select('#send-btn').events('click').map(e => e.target);
     const text$ = buttonClick$.withLatestFrom(textStream$, (buttonClick, textStream) => {
         return textStream;
-    })
-    .map(textInput => textInput.value)
-    .filter(msg => msg.length > 0);
+    });
 
     return text$.share();
 }
