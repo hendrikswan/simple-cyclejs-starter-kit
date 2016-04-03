@@ -1,5 +1,4 @@
 import { Observable } from 'rx';
-//  const { Observable } = Rx;
 import Cycle from '@cycle/core';
 import CycleDOM from '@cycle/dom';
 const {
@@ -46,7 +45,8 @@ function view({ messageBox, messageList, navBar, contactList }) {
     return vtree$;
 }
 
-function main(sources) {
+
+function model(actions) {
     const messagePollRequest$ = Observable
         .interval(1000)
         .map(() => {
@@ -56,6 +56,34 @@ function main(sources) {
             };
         });
 
+    const messagePostRequest$ = actions.messageUpdate$
+        .map(msg => ({
+            url: 'http://localhost:3000/messages',
+            category: 'messagePost',
+            method: 'POST',
+            send: {
+                text: msg,
+            },
+            eager: true,
+        }));
+
+    const requestStream$ = Observable.merge(messagePollRequest$, messagePostRequest$);
+
+    return {
+        requestStream$,
+    };
+}
+
+function intent({ messageBox }) {
+    const messageUpdate$ = messageBox.value$;
+
+    return {
+        messageUpdate$,
+    };
+}
+
+
+function main(sources) {
     const messages$ = sources.HTTP
         .filter(res$ => res$.request.category === 'messagePoll')
         .flatMap(x => x)
@@ -72,25 +100,16 @@ function main(sources) {
     }));
 
     const messageBox = MessageBox(sources);
-    const text$ = messageBox.value$;
-    const messagePostRequest$ = text$
-        .map(msg => ({
-            url: 'http://localhost:3000/messages',
-            category: 'messagePost',
-            method: 'POST',
-            send: {
-                text: msg,
-            },
-            eager: true,
-        }));
+
+    const actions = intent({ messageBox });
+    const modelOutput = model(actions);
 
 
-    const requestStream$ = Observable.merge(messagePollRequest$, messagePostRequest$);
     const vtree$ = view({ sources, messageBox, messageList, navBar, contactList });
 
     return {
         DOM: vtree$,
-        HTTP: requestStream$,
+        HTTP: modelOutput.requestStream$,
     };
 }
 
