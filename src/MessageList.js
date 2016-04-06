@@ -1,8 +1,8 @@
 import { div } from '@cycle/dom';
 
-export default function MessageList(sources) {
+export default function MessageList({ props }) {
     const vtree$ =
-        sources.prop$.messages$
+        props.messages$
         .map(messages => div({ className: 'message-list' },
             messages.map(message =>
                 div({
