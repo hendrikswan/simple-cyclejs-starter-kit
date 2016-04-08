@@ -1,8 +1,7 @@
 import { Observable } from 'rx';
 import { div, input, label, a, i } from '@cycle/dom';
 
-function intent(sources) {
-    const { DOM } = sources;
+function intent({ DOM }) {
     const textStream$ = DOM
         .select('#input-msg')
         .events('keyup')
@@ -17,8 +16,8 @@ function intent(sources) {
     return text$.share();
 }
 
-export default function MessageBox(sources) {
-    const value$ = intent(sources);
+export default function MessageBox({ DOM }) {
+    const value$ = intent({ DOM });
 
     const vtree$ = value$
         .startWith(null)
