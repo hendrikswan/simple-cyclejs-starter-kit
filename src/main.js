@@ -70,20 +70,6 @@ function makeStateStoreDriver(initialState = {}) {
         .startWith(immutableState);
     };
 }
-//
-// function makeStateStoreDriver(initialState = {}) {
-//     return (input$) => {
-//         // We convert it to immutable state
-//         // We scan over any state changes. These state changes
-//         // are functions where we pass in existing state and get
-//         // new state back
-//         return input$.scan((state, changeState) => {
-//             return changeState(state);
-//         }, initialState)
-//         // To fire up the app we need to pass the initial state
-//         .startWith(initialState);
-//     };
-// }
 
 
 function main({ HTTP, DOM, store }) {
