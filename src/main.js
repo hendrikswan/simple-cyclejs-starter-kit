@@ -56,34 +56,34 @@ function intent({ messageBox }) {
 }
 
 
-// function makeStateStoreDriver(initialState = {}) {
-//     return (input$) => {
-//         // We convert it to immutable state
-//         const immutableState = Immutable.fromJS(initialState);
-//         // We scan over any state changes. These state changes
-//         // are functions where we pass in existing state and get
-//         // new state back
-//         return input$.scan((state, changeState) => {
-//             return changeState(state);
-//         }, immutableState)
-//         // To fire up the app we need to pass the initial state
-//         .startWith(immutableState);
-//     };
-// }
-
 function makeStateStoreDriver(initialState = {}) {
     return (input$) => {
         // We convert it to immutable state
+        const immutableState = Immutable.fromJS(initialState);
         // We scan over any state changes. These state changes
         // are functions where we pass in existing state and get
         // new state back
         return input$.scan((state, changeState) => {
             return changeState(state);
-        }, initialState)
+        }, immutableState)
         // To fire up the app we need to pass the initial state
-        .startWith(initialState);
+        .startWith(immutableState);
     };
 }
+//
+// function makeStateStoreDriver(initialState = {}) {
+//     return (input$) => {
+//         // We convert it to immutable state
+//         // We scan over any state changes. These state changes
+//         // are functions where we pass in existing state and get
+//         // new state back
+//         return input$.scan((state, changeState) => {
+//             return changeState(state);
+//         }, initialState)
+//         // To fire up the app we need to pass the initial state
+//         .startWith(initialState);
+//     };
+// }
 
 
 function main({ HTTP, DOM, store }) {
@@ -102,9 +102,11 @@ function main({ HTTP, DOM, store }) {
         // We map to a function that receives the value from the observable
         // and returns a function: (state) => state.set('inputValue', value)
         .map(value => state => {
-            state.messages = value;
-            console.log('updating state!: ', state);
-            return state;
+            // state.messages = value;
+            // console.log('updating state!: ', state);
+            const updatedState = state.set('messages', value);
+            debugger;
+            return updatedState;
         });
 
 
@@ -114,7 +116,7 @@ function main({ HTTP, DOM, store }) {
     // store.subscribe(state => console.log(state.get('messages')));
     const messageList = MessageList({
         props: {
-            messages$: store.map(state => state.messages),  // store.map(s => s.messages),
+            messages$: store.map(state => state.toJS().messages),  // store.map(s => s.messages),
         },
     });
     const messageBox = MessageBox({ DOM });
