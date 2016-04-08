@@ -13,8 +13,7 @@ function MessageHTTP({ HTTP, props: { messageAdded$ } }) {
     const response$ = HTTP
         .filter(res$ => res$.request.category === 'messagePoll')
         .flatMap(x => x)
-        .map(res => res.body)
-        .startWith([]);
+        .map(res => res.body);
 
     const messagePostRequest$ = messageAdded$
         .map(msg => ({

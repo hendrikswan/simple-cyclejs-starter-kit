@@ -91,7 +91,6 @@ function main({ HTTP, DOM, store }) {
             // state.messages = value;
             // console.log('updating state!: ', state);
             const updatedState = state.set('messages', value);
-            debugger;
             return updatedState;
         });
 
@@ -128,9 +127,7 @@ const drivers = {
     DOM: makeDOMDriver('#app'),
     HTTP: makeHTTPDriver(),
     store: makeStateStoreDriver({
-        messages: [
-            { text: 'hi there' },
-        ],
+        messages: [],
     }),
 };
 
