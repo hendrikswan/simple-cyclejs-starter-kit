@@ -1,4 +1,4 @@
-import Rx, { Observable } from 'rx';
+import Rx, { Observable, Subject } from 'rx';
 import Cycle from '@cycle/core';
 import CycleDOM from '@cycle/dom';
 const {
@@ -14,6 +14,10 @@ import MessageBox from './MessageBox';
 import ContactList from './ContactList';
 import MessageList from './MessageList';
 import Immutable from 'immutable';
+
+const constants = {
+    NEW_MESSAGE_ADDED: 'NEW_MESSAGE_ADDED',
+};
 
 
 function view({ messageBox, messageList, navBar, contactList }) {
@@ -47,15 +51,6 @@ function view({ messageBox, messageList, navBar, contactList }) {
     return vtree$;
 }
 
-function intent({ messageBox }) {
-    const messageAdded$ = messageBox.value$;
-
-    return {
-        messageAdded$,
-    };
-}
-
-
 function makeStateStoreDriver(initialState = {}) {
     return (input$) => {
         // We convert it to immutable state
@@ -71,9 +66,17 @@ function makeStateStoreDriver(initialState = {}) {
     };
 }
 
+function makeActionsDriver() {
+    return (action$) => {
+        return action$;
+    };
+}
 
-function main({ HTTP, DOM, store }) {
-    const messageAdded$ = new Rx.ReplaySubject(1);
+
+function main({ HTTP, DOM, store, actions }) {
+    const messageAdded$ = actions
+        .filter(a => a.type === constants.NEW_MESSAGE_ADDED)
+        .map(a => a.value);
 
     const messageHTTP = MessageHTTP({
         HTTP: HTTP,
@@ -106,20 +109,23 @@ function main({ HTTP, DOM, store }) {
     });
     const messageBox = MessageBox({ DOM });
 
-
-    const actions = intent({ messageBox });
+    const action$ = messageBox.value$.map(value => ({
+        type: constants.NEW_MESSAGE_ADDED,
+        value,
+    }));
 
     const vtree$ =
         view({ messageBox, messageList, navBar, contactList });
 
 
     // cyclic dependency stuff
-    actions.messageAdded$.subscribe(messageAdded$);
+    // actions.messageAdded$.subscribe(messageAdded$);
 
     return {
         DOM: vtree$,
         HTTP: messageHTTP.request$,
         store: messageUpdate$,
+        actions: action$,
     };
 }
 
@@ -129,6 +135,7 @@ const drivers = {
     store: makeStateStoreDriver({
         messages: [],
     }),
+    actions: makeActionsDriver(),
 };
 
 
