@@ -13,12 +13,13 @@ import NavBar from './NavBar';
 import MessageBox from './MessageBox';
 import ContactList from './ContactList';
 import MessageList from './MessageList';
-import Immutable from 'immutable';
+import makeStateDriver from './makeStateDriver';
+import makeActionDriver from './makeActionDriver';
 
 // use that facebook lib
 const constants = {
     NEW_MESSAGE_ADDED: 'NEW_MESSAGE_ADDED',
-    'MESSAGES_POLL_RESULT': 'MESSAGES_POLL_RESULT',
+    MESSAGES_POLL_RESULT: 'MESSAGES_POLL_RESULT',
 };
 
 
@@ -52,28 +53,6 @@ function view({ messageBox, messageList, navBar, contactList }) {
 
     return vtree$;
 }
-
-function makeStateStoreDriver(initialState = {}) {
-    return (input$) => {
-        // We convert it to immutable state
-        const immutableState = Immutable.fromJS(initialState);
-        // We scan over any state changes. These state changes
-        // are functions where we pass in existing state and get
-        // new state back
-        return input$.scan((state, changeState) => {
-            return changeState(state);
-        }, immutableState)
-        // To fire up the app we need to pass the initial state
-        .startWith(immutableState);
-    };
-}
-
-function makeActionsDriver() {
-    return (action$) => {
-        return action$;
-    };
-}
-
 
 function main({ HTTP, DOM, store, actions }) {
     const messageAdded$ = actions
@@ -136,10 +115,10 @@ function main({ HTTP, DOM, store, actions }) {
 const drivers = {
     DOM: makeDOMDriver('#app'),
     HTTP: makeHTTPDriver(),
-    store: makeStateStoreDriver({
+    store: makeStateDriver({
         messages: [],
     }),
-    actions: makeActionsDriver(),
+    actions: makeActionDriver(),
 };
 
 
