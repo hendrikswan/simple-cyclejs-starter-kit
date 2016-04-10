@@ -1,7 +1,8 @@
-import { Observable } from 'rx';
+import { Observable as $ } from 'rx';
 
 function MessageHTTP({ HTTP, props: { messageAdded$ } }) {
-    const pollRequest$ = Observable
+    // function addMessageListCycle() {
+    const messagePollRequest$ = $
         .interval(1000)
         .map(() => {
             return {
@@ -10,7 +11,7 @@ function MessageHTTP({ HTTP, props: { messageAdded$ } }) {
             };
         });
 
-    const response$ = HTTP
+    const messagePollResponse$ = HTTP
         .filter(res$ => res$.request.category === 'messagePoll')
         .flatMap(x => x)
         .map(res => res.body);
@@ -27,10 +28,32 @@ function MessageHTTP({ HTTP, props: { messageAdded$ } }) {
         }));
 
 
+    const channelPollRequest$ = $
+        .interval(1000)
+        .map(() => {
+            return {
+                url: 'http://localhost:3000/channels',
+                category: 'channelPoll',
+            };
+        });
+
+    const channelPollResponse$ = HTTP
+        .filter(res$ => res$.request.category === 'channelPoll')
+        .flatMap(x => x)
+        .map(res => res.body);
+
     return {
-        request$: pollRequest$.merge(messagePostRequest$),
-        response$,
+        request$: $.merge(
+             channelPollRequest$,
+             messagePollRequest$,
+             messagePostRequest$
+        ),
+        messagePollResponse$,
+        channelPollResponse$,
     };
+    // }
+    //
+    // addMessageListCycle();
 }
 
 

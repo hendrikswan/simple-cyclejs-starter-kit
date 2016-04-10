@@ -6,7 +6,7 @@ export default function NavBar() {
         div({ className: 'navbar-fixed' }, [
             nav([
                 div({ className: 'nav-wrapper container' }, [
-                    a({ className: 'brand-logo left', href: '#' }, 'Cycle Socket Chat'),
+                    a({ className: 'brand-logo left', href: '#' }, 'Cycle Chat'),
                 ]),
             ]),
         ])

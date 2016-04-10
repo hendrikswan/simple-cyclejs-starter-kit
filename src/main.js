@@ -11,7 +11,7 @@ import MessageHTTP from './MessageHTTP';
 // import auctionItem from './auctionItem';
 import NavBar from './NavBar';
 import MessageBox from './MessageBox';
-import ContactList from './ContactList';
+import ChannelList from './ChannelList';
 import MessageList from './MessageList';
 import makeStateDriver from './makeStateDriver';
 import makeActionDriver from './makeActionDriver';
@@ -20,6 +20,7 @@ import makeActionDriver from './makeActionDriver';
 const constants = {
     NEW_MESSAGE_ADDED: 'NEW_MESSAGE_ADDED',
     MESSAGES_POLL_RESULT: 'MESSAGES_POLL_RESULT',
+    CHANNEL_POLL_RESULT: 'CHANNEL_POLL_RESULT',
 };
 
 
@@ -59,6 +60,17 @@ function main({ HTTP, DOM, store, actions }) {
         .filter(a => a.type === constants.NEW_MESSAGE_ADDED)
         .map(a => a.value);
 
+    const channelPollResult$ = actions
+        .filter(a => a.type === constants.CHANNEL_POLL_RESULT)
+        .map(a => a.value)
+        .map(value => state => {
+            // state.messages = value;
+            // console.log('updating state!: ', state);
+            const updatedState = state.set('channels', value);
+            return updatedState;
+            // return state;
+        });
+
     const messagePollResult$ = actions
         .filter(a => a.type === constants.MESSAGES_POLL_RESULT)
         .map(a => a.value)
@@ -77,8 +89,13 @@ function main({ HTTP, DOM, store, actions }) {
         },
     });
 
+
     const navBar = NavBar();
-    const contactList = ContactList();
+    const contactList = ChannelList({
+        props: {
+            channel$: store.map(state => state.toJS().channels),
+        },
+    });
     // store.subscribe(state => console.log(state.get('messages')));
     const messageList = MessageList({
         props: {
@@ -89,13 +106,19 @@ function main({ HTTP, DOM, store, actions }) {
 
 
     // We create a state change based on DOM input
-    const messagePollResultAction$ = messageHTTP.response$
+    const messagePollResultAction$ = messageHTTP.messagePollResponse$
         .map(value => ({
             type: constants.MESSAGES_POLL_RESULT,
             value,
         }));
         // We map to a function that receives the value from the observable
         // and returns a function: (state) => state.set('inputValue', value)
+
+    const channelPollResultAction$ = messageHTTP.channelPollResponse$
+        .map(value => ({
+            type: constants.CHANNEL_POLL_RESULT,
+            value,
+        }));
 
     const newMessageAction$ = messageBox.value$.map(value => ({
         type: constants.NEW_MESSAGE_ADDED,
@@ -108,8 +131,11 @@ function main({ HTTP, DOM, store, actions }) {
     return {
         DOM: vtree$,
         HTTP: messageHTTP.request$,
-        store: $.merge(messagePollResult$),
-        actions: $.merge(newMessageAction$, messagePollResultAction$),
+        store: $.merge(messagePollResult$, channelPollResult$),
+        actions: $.merge(newMessageAction$,
+            channelPollResultAction$,
+            messagePollResultAction$
+        ),
     };
 }
 
@@ -118,6 +144,7 @@ const drivers = {
     HTTP: makeHTTPDriver(),
     store: makeStateDriver({
         messages: [],
+        channels: [],
     }),
     actions: makeActionDriver(),
 };
