@@ -15,13 +15,8 @@ import ChannelList from './ChannelList';
 import MessageList from './MessageList';
 import makeStateDriver from './makeStateDriver';
 import makeActionDriver from './makeActionDriver';
-
-// use that facebook lib
-const constants = {
-    NEW_MESSAGE_ADDED: 'NEW_MESSAGE_ADDED',
-    MESSAGES_POLL_RESULT: 'MESSAGES_POLL_RESULT',
-    CHANNEL_POLL_RESULT: 'CHANNEL_POLL_RESULT',
-};
+import constants from './constants';
+import stateMutations from './stateMutations';
 
 
 function view({ messageBox, messageList, navBar, contactList }) {
@@ -60,28 +55,6 @@ function main({ HTTP, DOM, store, actions }) {
         .filter(a => a.type === constants.NEW_MESSAGE_ADDED)
         .map(a => a.value);
 
-    const channelPollResult$ = actions
-        .filter(a => a.type === constants.CHANNEL_POLL_RESULT)
-        .map(a => a.value)
-        .map(value => state => {
-            // state.messages = value;
-            // console.log('updating state!: ', state);
-            const updatedState = state.set('channels', value);
-            return updatedState;
-            // return state;
-        });
-
-    const messagePollResult$ = actions
-        .filter(a => a.type === constants.MESSAGES_POLL_RESULT)
-        .map(a => a.value)
-        .map(value => state => {
-            // state.messages = value;
-            // console.log('updating state!: ', state);
-            const updatedState = state.set('messages', value);
-            return updatedState;
-            // return state;
-        });
-
     const messageHTTP = MessageHTTP({
         HTTP: HTTP,
         props: {
@@ -89,6 +62,7 @@ function main({ HTTP, DOM, store, actions }) {
         },
     });
 
+    stateMutations({ store, actions });
 
     const navBar = NavBar();
     const contactList = ChannelList({
@@ -131,11 +105,11 @@ function main({ HTTP, DOM, store, actions }) {
     return {
         DOM: vtree$,
         HTTP: messageHTTP.request$,
-        store: $.merge(messagePollResult$, channelPollResult$),
         actions: $.merge(newMessageAction$,
             channelPollResultAction$,
             messagePollResultAction$
         ),
+        store: stateMutations({ actions }),
     };
 }
 
