@@ -1,4 +1,4 @@
-import Rx, { Observable, Subject } from 'rx';
+import { Observable as $ } from 'rx';
 import Cycle from '@cycle/core';
 import CycleDOM from '@cycle/dom';
 const {
@@ -24,7 +24,7 @@ const constants = {
 
 
 function view({ messageBox, messageList, navBar, contactList }) {
-    const vtree$ = Observable.of(
+    const vtree$ = $.of(
         div([
             navBar.DOM,
             div({ className: 'container', style: { 'padding-top': '40px' } }, [
@@ -87,8 +87,6 @@ function main({ HTTP, DOM, store, actions }) {
     });
     const messageBox = MessageBox({ DOM });
 
-    const vtree$ =
-        view({ messageBox, messageList, navBar, contactList });
 
     // We create a state change based on DOM input
     const messagePollResultAction$ = messageHTTP.response$
@@ -104,11 +102,14 @@ function main({ HTTP, DOM, store, actions }) {
         value,
     }));
 
+    const vtree$ =
+        view({ messageBox, messageList, navBar, contactList });
+
     return {
         DOM: vtree$,
         HTTP: messageHTTP.request$,
-        store: Observable.merge(messagePollResult$),
-        actions: Observable.merge(newMessageAction$, messagePollResultAction$),
+        store: $.merge(messagePollResult$),
+        actions: $.merge(newMessageAction$, messagePollResultAction$),
     };
 }
 
