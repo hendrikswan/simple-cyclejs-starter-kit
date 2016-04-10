@@ -24,8 +24,13 @@ function MessageHTTP({ HTTP, props: { messageAdded$ } }) {
             send: {
                 text: msg,
             },
-            eager: true,
         }));
+
+    const messagePostResponse$ = HTTP
+        .filter(res$ => res$.request.category === 'messagePost')
+        .flatMap(x => x)
+        .map(res => res.body);
+
 
 
     const channelPollRequest$ = $
@@ -50,6 +55,7 @@ function MessageHTTP({ HTTP, props: { messageAdded$ } }) {
         ),
         messagePollResponse$,
         channelPollResponse$,
+        messagePostResponse$,
     };
     // }
     //

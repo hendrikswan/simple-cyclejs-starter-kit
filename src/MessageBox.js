@@ -1,4 +1,4 @@
-import { Observable } from 'rx';
+import { Observable as $ } from 'rx';
 import { div, input, label, a, i } from '@cycle/dom';
 
 function intent({ DOM }) {
@@ -13,30 +13,31 @@ function intent({ DOM }) {
         return textStream;
     });
 
-    return text$.share();
+    return text$.share().startWith(null);
 }
 
-export default function MessageBox({ DOM }) {
+export default function MessageBox({ DOM, store }) {
     const value$ = intent({ DOM });
 
-    const vtree$ = value$
-        .startWith(null)
-        .map(() => {
-            return Observable.of(
-                div({ className: 'row' }, [
-                    div({ className: 'input-field col s10' }, [
-                        input({ id: 'input-msg', className: 'validate', autofocus: true, value: '' }),
-                        label({ className: 'active' }, 'Type your chat, enter or hit button to send'),
-                    ]),
-                    div({ className: 'input-field col s2' }, [
-                        a({ id: 'send-btn', className: 'btn-floating btn-large waves-effect waves-light red' }, [
-                            i({ className: 'material-icons' }, 'send'),
-                        ]),
-                    ]),
-                ])
-            );
-        });
-
+    const vtree$ = value$.withLatestFrom(store, (value, state) => {
+        return div({ className: 'row' }, [
+            div({ className: 'input-field col s10' }, [
+                input({
+                    id: 'input-msg',
+                    disabled: state.get('sending_new_msg'),
+                    className: 'validate',
+                    autofocus: true,
+                    value: '',
+                }),
+                label({ className: 'active' }, 'Type your chat, enter or hit button to send'),
+            ]),
+            div({ className: 'input-field col s2' }, [
+                a({ id: 'send-btn', className: 'btn-floating btn-large waves-effect waves-light red' }, [
+                    i({ className: 'material-icons' }, 'send'),
+                ]),
+            ]),
+        ]);
+    });
 
     return {
         DOM: vtree$,

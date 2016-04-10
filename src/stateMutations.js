@@ -5,24 +5,25 @@ export default function ({ actions }) {
     const channelPollResult$ = actions
         .filter(a => a.type === constants.CHANNEL_POLL_RESULT)
         .map(a => a.value)
-        .map(value => state => {
-            // state.messages = value;
-            // console.log('updating state!: ', state);
-            const updatedState = state.set('channels', value);
-            return updatedState;
-            // return state;
-        });
+        .map(value => state => state.set('channels', value));
 
     const messagePollResult$ = actions
         .filter(a => a.type === constants.MESSAGES_POLL_RESULT)
         .map(a => a.value)
-        .map(value => state => {
-            // state.messages = value;
-            // console.log('updating state!: ', state);
-            const updatedState = state.set('messages', value);
-            return updatedState;
-            // return state;
-        });
+        .map(value => state => state.set('messages', value));
 
-    return $.merge(messagePollResult$, channelPollResult$);
+    const messageAddStart$ = actions
+        .filter(a => a.type === constants.NEW_MESSAGE_ADDED)
+        .map(() => state => state.set('sending_new_msg', true));
+
+    const messageAddCompleted$ = actions
+        .filter(a => a.type === constants.NEW_MESSAGE_ADD_COMPLETED)
+        .map(() => state => state.set('sending_new_msg', false));
+
+    return $.merge(
+        messagePollResult$,
+        channelPollResult$,
+        messageAddStart$,
+        messageAddCompleted$
+    );
 }

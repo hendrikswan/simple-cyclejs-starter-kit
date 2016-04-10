@@ -76,7 +76,7 @@ function main({ HTTP, DOM, store, actions }) {
             messages$: store.map(state => state.toJS().messages),  // store.map(s => s.messages),
         },
     });
-    const messageBox = MessageBox({ DOM });
+    const messageBox = MessageBox({ DOM, store });
 
 
     // We create a state change based on DOM input
@@ -94,6 +94,12 @@ function main({ HTTP, DOM, store, actions }) {
             value,
         }));
 
+    const messagePostResponseAction$ = messageHTTP.messagePostResponse$
+        .map(() => ({
+            type: constants.NEW_MESSAGE_ADD_COMPLETED,
+        }));
+
+
     const newMessageAction$ = messageBox.value$.map(value => ({
         type: constants.NEW_MESSAGE_ADDED,
         value,
@@ -107,7 +113,8 @@ function main({ HTTP, DOM, store, actions }) {
         HTTP: messageHTTP.request$,
         actions: $.merge(newMessageAction$,
             channelPollResultAction$,
-            messagePollResultAction$
+            messagePollResultAction$,
+            messagePostResponseAction$
         ),
         store: stateMutations({ actions }),
     };
