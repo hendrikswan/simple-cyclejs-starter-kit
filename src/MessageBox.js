@@ -13,7 +13,7 @@ function intent({ DOM }) {
         return textStream;
     });
 
-    return text$.share().startWith(null);
+    return text$.startWith(null);
 }
 
 export default function MessageBox({ DOM, store }) {
