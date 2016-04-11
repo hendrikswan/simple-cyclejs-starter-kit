@@ -51,6 +51,8 @@ function view({ messageBox, messageList, navBar, contactList }) {
 }
 
 function main({ HTTP, DOM, store, actions }) {
+    stateMutations({ store, actions });
+
     const messageAdded$ = actions
         .filter(a => a.type === constants.NEW_MESSAGE_ADDED)
         .map(a => a.value);
@@ -62,7 +64,6 @@ function main({ HTTP, DOM, store, actions }) {
         },
     });
 
-    stateMutations({ store, actions });
 
     const navBar = NavBar();
     const contactList = ChannelList({
